@@ -9,7 +9,6 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/pkg/errors"
 	"github.com/redis/go-redis/v9"
 	"gorm.io/gorm"
 )
@@ -24,16 +23,6 @@ func (r *ProductRepo) InsertNewProduct(ctx context.Context, product *models.Prod
 		err := tx.Create(product).Error
 		if err != nil {
 			return err
-		}
-
-		for i, variant := range product.ProductVariants {
-			variant.ProductID = product.ID
-			err := tx.Create(&variant).Error
-			if err != nil {
-				return errors.Wrap(err, fmt.Sprintf("failed to input variant: %+v", variant))
-			}
-			product.ProductVariants[i].ID = variant.ID
-			product.ProductVariants[i].ProductID = product.ID
 		}
 
 		return nil
